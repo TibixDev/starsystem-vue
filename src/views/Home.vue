@@ -1,5 +1,5 @@
 <template>
-    <audio autoplay loop volume="0.1">
+    <audio autoplay loop volume="0.1" id="bg-song">
         <source src="/audio/flower_ost_peaceful_repose.mp3" type="audio/mpeg">
     </audio>
     <div class="p-2 flex flex-col items-center justify-center h-screen overflow-hidden relative">
@@ -226,6 +226,10 @@ function doGalaxyRotation() {
 }
 
 function answer(ans: string) {
+    const audioNode = document.getElementById('bg-song') as HTMLAudioElement;
+    if (audioNode.paused) {
+        audioNode.play();
+    }
     answers.value.push(ans);
     if (questionContainer.value?.classList.contains('anim-renew')) {
         questionContainer.value?.classList.remove('anim-renew');
