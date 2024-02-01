@@ -41,7 +41,8 @@ onMounted(() => {
     generateStarAnims();
     generateDynaRot();
     addStars();
-    // Set CSS root variable
+    
+    // Set CSS root variables
     document.documentElement.style.setProperty('--star-animation-duration', `${STAR_ANIM_DURATION}ms`);
     document.documentElement.style.setProperty('--goodbye-duration', `${GOODBYE_DURATION}ms`);
     questionContainer.value!.style.animationDuration = `${STAR_ANIM_DURATION}ms`;
