@@ -7,7 +7,7 @@
 
         </div>
         <div id="question-container" class="flex flex-col items-center gap-6 anim-renew" ref="questionContainer">
-            <h1 class="text-3xl text-center max-w-[50vw] leading-snug">{{ questionList[questionIdx].question }}</h1>
+            <h1 class="text-3xl text-center max-w-[80vw] md:max-w-[50vw] leading-snug">{{ questionList[questionIdx].question }}</h1>
             <div class="flex flex-row gap-3" v-if="questionList[questionIdx].answers">
                 <button
                     v-for="ans, k in questionList[questionIdx].answers"
