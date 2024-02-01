@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.generic-hover {
+    @apply transition duration-200 hover:brightness-90;
+}
+
+.generic-disabled {
+    @apply disabled:grayscale disabled:cursor-not-allowed;
+}
