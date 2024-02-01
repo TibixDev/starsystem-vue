@@ -38,10 +38,10 @@ const ROT_ANIM_DURATION = 3000;
 let flagEnding = false;
 
 onMounted(() => {
-    generateStarAnims();
-    generateDynaRot();
+    generateDynStarAnims();
+    generateDynaRotAnims();
     addStars();
-    
+
     // Set CSS root variables
     document.documentElement.style.setProperty('--star-animation-duration', `${STAR_ANIM_DURATION}ms`);
     document.documentElement.style.setProperty('--goodbye-duration', `${GOODBYE_DURATION}ms`);
@@ -53,27 +53,33 @@ onMounted(() => {
     }, STAR_ANIM_DURATION * 2);
 })
 
+/**
+ * Adds a new set of stars to the stars container in a separate star system
+ */
 function addStars() {
     const starSystem = document.createElement('div');
     starSystem.classList.add('absolute', 'top-0', 'left-0', 'w-full', 'h-full', 'pointer-events-none');
     for (let i = 0; i < NUM_STARS; i++) {
+        // Initialize the star
         const star = document.createElement('div');
         const starSize = randInt(2, 4);
         star.classList.add('absolute', 'rounded-full', 'transition', 'duration-200', 'blur-[0px]');
         star.style.backgroundColor = STAR_COLORS[randInt(0, STAR_COLORS.length - 1)];
+
+        // Size and position
         star.style.width = `${starSize}px`;
         star.style.height = `${starSize}px`;
         star.style.left = `${randInt(-20, 120)}%`;
         star.style.top = `${randInt(-50, 150)}%`;
+
+        // Flicker animation
         star.style.animationDelay = `${randInt(0, 1000)}ms`;
         star.style.animationDuration = `${randInt(2000, 3000)}ms`;
         star.style.animationIterationCount = 'infinite';
         star.style.animationName = 'flicker';
+
         // Glow
         star.style.boxShadow = `0 0 ${starSize * 1}px ${starSize * 0.5}px ${star.style.backgroundColor}`;
-
-        // star.style.animationDuration = `${Math.random() * 5 + 5}s`;
-        // star.style.animationDelay = `${Math.random() * 5}s`;
         starSystem.appendChild(star);
     }
     starSystem.dataset.depth = '0';
@@ -81,13 +87,16 @@ function addStars() {
     starsContainer.value?.appendChild(starSystem);
 }
 
+/**
+ * Pushes back all star systems by one depth level by adding the appropriate animation
+ * If the depth level is greater than the max depth, remove the star system
+ */
 function pushbackStars() {
     const starSystems = starsContainer.value?.querySelectorAll('div');
     starSystems?.forEach(starSystem => {
         const depth = parseInt(starSystem.dataset.depth ?? '0');
         if (depth < MAX_DEPTH) {
             starSystem.dataset.depth = `${depth + 1}`;
-            // starSystem.style.transform = `scale(${SCALE_PER_DEPTH ** (depth + 1)})`;
             if (starSystem.classList.contains('anim-stars-intro')) {
                 starSystem.classList.remove('anim-stars-intro');
             }
@@ -102,7 +111,11 @@ function pushbackStars() {
     })
 }
 
-function generateStarAnims() {
+
+/**
+ * Generates the dynamic star animations
+ */
+function generateDynStarAnims() {
     // Create a style element
     const dynAnim = document.createElement('style');
     // Add the animations to the style element
@@ -175,7 +188,10 @@ function generateStarAnims() {
     document.head.appendChild(dynAnim);
 }
 
-function generateDynaRot() {
+/**
+ * Generates the dynamic galaxy rotation animations
+ */
+function generateDynaRotAnims() {
     const maxAnims = 360 / ROT_SHIFT_DEGREES;
     const dynAnim = document.createElement('style');
     for (let i = 0; i < maxAnims; i++) {
@@ -204,13 +220,18 @@ function generateDynaRot() {
 
 }
 
+/**
+ * Rotates the galaxy by MAX_ROT_DEGREES, then resets it to 0 if it exceeds 360
+ */
 function doGalaxyRotation() {
+    // Calculate the current level
     let level = parseInt(questionContainer.value.dataset.rotaLevel ?? '0');
     const maxAnims = 360 / ROT_SHIFT_DEGREES;
     if (level >= maxAnims) {
         level = 0;
     }
     const animName = `dyna-rot-${level}`;
+
     // Remove any class that starts with anim-dyna-rot
     const classes = Array.from(starsContainer.value.classList).filter(c => c.startsWith('anim-dyna-rot'));
     classes.forEach(c => {
@@ -226,19 +247,31 @@ function doGalaxyRotation() {
     questionContainer.value.dataset.rotaLevel = `${level}`;
 }
 
+/**
+ * Submits an answer to the question, moves to a new question
+ * aswell as calls all the animations
+ * @param ans The answer to the question
+ */
 function answer(ans: string) {
+    // If the song is not playing, play it
     const audioNode = document.getElementById('bg-song') as HTMLAudioElement;
     if (audioNode.paused) {
         audioNode.play();
     }
+
+    // Add the answer to the list and animate the question container
     answers.value.push(ans);
     if (questionContainer.value?.classList.contains('anim-renew')) {
         questionContainer.value?.classList.remove('anim-renew');
     }
     questionContainer.value?.classList.add('anim-dissonance');
+
+    // All starsystems should be pushed back, and a new one should be added
+    // Rotate the galaxy while we're at it
     pushbackStars();
     addStars();
     doGalaxyRotation();
+
     setTimeout(() => {
         // If we haven't reached the ending yet, go to the next question
         if (!flagEnding) {
@@ -257,6 +290,8 @@ function answer(ans: string) {
                 }, STAR_ANIM_DURATION);
             }, 2000);
         }
+
+        // Animate the question container back in
         questionContainer.value?.classList.remove('anim-dissonance')
         questionContainer.value?.classList.add('anim-renew')
         setTimeout(() => {
@@ -398,10 +433,8 @@ body {
 
 @keyframes dissonance {
     0% {
-        /* transform: translateY(0%); */
     }
     100% {
-        /* transform: translateY(-200%); */
         scale: 0.5;
         opacity: 0;
         filter: blur(10px) brightness(0.5)
@@ -420,7 +453,6 @@ body {
 
 @keyframes renew {
     0% {
-        /*transform: translateY(200%)*/;
         scale: 2.5;
         opacity: 0;
         filter: blur(10px) brightness(0.5)
@@ -431,7 +463,6 @@ body {
 }
 
 .anim-renew {
-    /* Do not reset animation on class removal */
     animation-fill-mode: forwards;
     animation-name: renew;
     animation-duration: calc(var(--star-animation-duration) / 2);
